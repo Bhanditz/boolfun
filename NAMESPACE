@@ -1,10 +1,59 @@
-# Default NAMESPACE created by R
-# Remove the previous line if you edit this file
-
-# Export all names
-exportPattern(".")
-
-# Import all packages listed as Imports or Depends
-import(
-  R.oo
+useDynLib(boolfun,
+  degree,
+  algebraicImmunity,
+  mobiusTransform,
+  walshTransform,
+  multiply,
+  add
 )
+
+export("Assignment")
+S3method("int",		Assignment)
+S3method("len",		Assignment)
+S3method("weight",	Assignment)
+S3method("print",	Assignment)
+S3method("string",	Assignment)
+S3method("equals",	Assignment)
+exportPattern(".*[.]Assignment")
+
+export("Polynomial")
+S3method("anf",		Polynomial)
+S3method("*",		Polynomial)
+S3method("+",		Polynomial)
+S3method("[[",		Polynomial)
+S3method("deg",		Polynomial)
+S3method("len",		Polynomial)
+S3method("pad",		Polynomial)
+S3method("n",		Polynomial)
+S3method("string",	Polynomial)
+S3method("equals",	Polynomial)
+S3method("print",	Polynomial)
+exportPattern(".*[.]Polynomial")
+
+export("BooleanFunction")
+S3method("ai",		BooleanFunction)
+S3method("wh",		BooleanFunction)
+S3method("tt",		BooleanFunction)
+S3method("anf",		BooleanFunction)
+S3method("ANF",		BooleanFunction)
+S3method("deg",		BooleanFunction)
+S3method("n",		BooleanFunction)
+S3method("ci",		BooleanFunction)
+S3method("nl",		BooleanFunction)
+S3method("res",		BooleanFunction)
+S3method("isBal",	BooleanFunction)
+S3method("isRes",	BooleanFunction)
+S3method("isCi",	BooleanFunction)
+S3method("equals",	BooleanFunction)
+S3method("print",	BooleanFunction)
+exportPattern(".*[.]BooleanFunction")
+
+export("int","len","weight","string","anf","deg","n","toBin", "pad",
+  "ai","wh","tt","ANF","ci","nl","res","isBal","isRes","isCi")
+
+export("toInt","strip","toBin")
+
+export("mobiusTransform","walshTransform")
+
+import(R.oo)
+

@@ -1,0 +1,85 @@
+\begin{thebibliography}{10}
+
+\bibitem{ADMS09}
+Jean-Philippe Aumasson, Itai Dinur, Willi Meier, and Adi Shamir.
+\newblock Cube testers and key recovery attacks on reduced-round {MD6} and
+  trivium.
+\newblock In Helena Handschuh, Stefan Lucks, Bart Preneel, and Phillip Rogaway,
+  editors, {\em Symmetric Cryptography}, number 09031 in Dagstuhl Seminar
+  Proceedings, Dagstuhl, Germany, 2009. Schloss Dagstuhl - Leibniz-Zentrum fuer
+  Informatik, Germany.
+
+\bibitem{Bard07}
+Gregory~V. Bard.
+\newblock {\em Algorithms for Solving Linear and Polynomial Systems of
+  Equations over Finite Fields with Applications to Cryptanalysis}.
+\newblock PhD thesis, University of Mariland, 2007.
+
+\bibitem{Roo}
+Henrik Bengtsson.
+\newblock The {R.oo} package - object-oriented programming with references
+  using standard {R} code.
+\newblock In Kurt Hornik, Friedrich Leisch, and Achim Zeileis, editors, {\em
+  Proceedings of the 3rd International Workshop on Distributed Statistical
+  Computing (DSC 2003)}, Vienna, Austria, March 2003.
+
+\bibitem{Braeken06}
+Ann Braeken.
+\newblock {\em Cryptographic Properties of Boolean Functions and S-Boxes}.
+\newblock PhD thesis, Katholieke Universiteit Leuven (KUL), 2006.
+
+\bibitem{Canteaut05}
+Anne Canteaut.
+\newblock Fast correlation attacks against stream ciphers and related open
+  problems.
+\newblock {\em IEEE Information Theory Workshop on Theory and Practice in
+  Information-Theoretic Security}, 2005.
+
+\bibitem{EJT07}
+H{\aa}kan Englund, Thomas Johansson, and Meltem~S{\"o}nmez Turan.
+\newblock A framework for chosen {IV} statistical analysis of stream ciphers.
+\newblock In K.~Srinathan, C.~Pandu Rangan, and Moti Yung, editors, {\em
+  Progress in Cryptology - {INDOCRYPT} 2007, 8th International Conference on
+  Cryptology in India, Chennai, India, December 9-13, 2007, Proceedings},
+  volume 4859 of {\em Lecture Notes in Computer Science}, pages 268--281.
+  Springer, 2007.
+
+\bibitem{Filiol02}
+Filiol.
+\newblock A new statistical testing for symmetric ciphers and hash functions.
+\newblock In {\em ICIS: International Conference on Information and
+  Communications Security (ICIS), LNCS}, 2002.
+
+\bibitem{R1996}
+Ross Ihaka and Robert Gentleman.
+\newblock R: A language for data analysis and graphics.
+\newblock {\em Journal of Computational and Graphical Statistics},
+  5(3):299--314, 1996.
+
+\bibitem{Massey98}
+James~L. Massey.
+\newblock The discrete fourier transform in coding and cryptography.
+\newblock In {\em IEEE Inform. Theory Workshop, ITW 98}, pages 9--11, 1998.
+
+\bibitem{MPC04}
+Willi Meier, Enes Pasalic, and Claude Carlet.
+\newblock Algebraic attacks and decomposition of boolean functions.
+\newblock In {\em In Advances in Cryptology - EUROCRYPT 2004}, pages 474--491.
+  Springer-Verlag, 2004.
+
+\bibitem{R2001}
+Brian~D. Ripley.
+\newblock The {R} project in statistical computing.
+\newblock {\em MSOR Connections. The newsletter of the LTSN Maths, Stats \& OR
+  Network.}, 1(1):23--25, February 2001.
+
+\bibitem{Saarinen06}
+Markku-Juhani~Olavi Saarinen.
+\newblock Chosen-{IV} statistical attacks on estream ciphers.
+\newblock In Manu Malek, Eduardo Fern{\'a}ndez-Medina, and Javier Hernando,
+  editors, {\em {SECRYPT} 2006, Proceedings of the International Conference on
+  Security and Cryptography, Set{\'u}bal, Portugal, August 7-10, 2006,
+  {SECRYPT} is part of {ICETE} - The International Joint Conference on
+  e-Business and Telecommunications}, pages 260--266. INSTICC Press, 2006.
+
+\end{thebibliography}

@@ -47,8 +47,7 @@ setMethodS3("deg", "Polynomial", function(this, ...) {
     if( is.null(this$.deg) ) {
       this$.deg <- .Call( "degree",
           as.integer(this$anf()),
-          as.integer(this$n()),
-          DUP=FALSE, PACKAGE="boolfun")
+          as.integer(this$n()))
     }
     this$.deg
 })
@@ -81,9 +80,9 @@ setMethodS3("string", "Polynomial", function(this, sort=TRUE, ...) {
 })
 
 #____________________________________________________________________________________
-setMethodS3(".pad", "Polynomial", function(this, n, ...) {
+setMethodS3("pad", "Polynomial", function(this, n, ...) {
     if(this$n() < n) {
-      padding <- vector("integer", 2^n-2^(this$n()))
+      padding <- vector("integer", 2^n - 2^(this$n()))
       this$.anf = c(this$.anf, padding)
       this$.n = n
     }
@@ -93,12 +92,11 @@ setMethodS3("*", "Polynomial", function(e1, e2, ...) {
         res <- e2 * e1
     else {
       if( e1$n() > e2$n() ) 
-        e2$.pad(e1$n())
+        e2$pad(e1$n())
       res <- .Call( "multiply", 
         as.integer( e1$anf()),
         as.integer(e2$anf()),
-        as.integer(e1$n() ),
-        DUP=FALSE, PACKAGE="boolfun" )
+        as.integer(e1$n() ))
       res <- Polynomial(res)
     }
     res
@@ -109,12 +107,11 @@ setMethodS3("+", "Polynomial", function(e1, e2, ...) {
         res <- e2 + e1
     else {
       if( e1$n() > e2$n() ) 
-        e2$.pad(e1$n())
+        e2$pad(e1$n())
       res <- .Call( "add", 
         as.integer( e1$anf()),
         as.integer(e2$anf()),
-        as.integer(e1$n() ),
-        DUP=FALSE, PACKAGE="boolfun" )
+        as.integer(e1$n() ))
       res <- Polynomial(res)
     }
     res

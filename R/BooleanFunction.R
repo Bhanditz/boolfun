@@ -64,8 +64,7 @@ setMethodS3("deg", "BooleanFunction", function(this, ...) {
     this$anf() # computes the anf if not done already
     this$.deg <- .Call( "degree",
         as.integer(this$anf()),
-        as.integer(log(length(this$.ANF),base=2)),
-        DUP=FALSE, PACKAGE="boolfun")
+        as.integer(log(length(this$.ANF),base=2)))
     }
     as.integer(this$.deg)
 })
@@ -74,8 +73,7 @@ setMethodS3("ai", "BooleanFunction", function(this, ...) {
     if( is.null(this$.ai) )
         this$.ai <- .Call( "algebraicImmunity",
             as.integer(this$tt()),
-            as.integer(log(length(this$tt()),base=2)),
-            DUP=FALSE, PACKAGE="boolfun")
+            as.integer(log(length(this$tt()),base=2)))
     as.integer(this$.ai)
 })
 

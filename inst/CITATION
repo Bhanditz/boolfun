@@ -1,0 +1,10 @@
+bibentry(
+  bibtype	="Article",
+  title		="Cryptographic Boolean Functions With R",
+  author		=personList(person("Frederic Lafitte"), person("Dirk Van Heule"), person("Julien Van hamme")),
+  institute	="Royal Military Academy",
+  journal	="The R Journal",
+  number		="Vol. 3 (1)",
+  year		="2011"
+)
+

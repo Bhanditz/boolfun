@@ -6,8 +6,7 @@ walshTransform <- function ( truthTable ) # /!\ should check truthTable values a
         stop("bad truth table length")
     res <- .Call( "walshTransform",
         as.integer(truthTable),
-        as.integer(len),
-        DUP=FALSE, PACKAGE="boolfun")
+        as.integer(len))
     res
 }
 

@@ -1,0 +1,208 @@
+\documentclass{article}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm2e}
+\usepackage{fancyvrb}
+\setlength{\parindent}{0cm}
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}\usepackage{hyperref}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textbf{#1}}}
+
+\newtheorem{thm}{Theorem}
+  \theoremstyle{definition}
+  \newtheorem{example}[thm]{Example}
+  \theoremstyle{definition}
+  \newtheorem{defn}[thm]{Definition}
+  \newtheorem{prop}[thm]{Proposition}
+  \newtheorem{fact}[thm]{Fact}
+
+%    E N D     H E A D E R    
+\begin{document}
+
+\title{Handling Boolean multivariate polynomials with the \Rpackage{boolfun} package}
+\author{Fr\'ed\'eric Lafitte}
+%\VignetteIndexEntry{Handling Boolean multivariate polynomials with the boolfun package}
+\maketitle
+\tableofcontents
+\listofalgorithms
+\clearpage
+
+
+\section{Introduction}
+
+The \Rpackage{boolfun} package has been developed to manipulate Boolean functions and evaluate their cryptographic properties. Among the many representations of Boolean functions (e.g. binary decision tree or diagram, truth table, ...) some of them are well suited to derive cryptographic properties (e.g. Walsh spectrum). One of those representations is the algebraic normal form of the Boolean function, a multivariate polynomial with $n$ indeterminates $x_1,\dots , x_n\in \{0,1\}$ of the form $\sum_{I\subset\{1,\dots,n\}} c_I \prod_{i\in I}x_i$ where the $2^n$ coefficients $c_I$ are in $\{0,1\}$. A formal definition can be found in section \ref{sec:anf}.
+
+The recent package \Rpackage{multipol} allows to handle multivariate polynomials but is not well suited to handle operations over polynomial Boolean rings. In \Rpackage{boolfun}, an S3 object \Robject{Polynomial} is defined that implements basic functionality to handle the algebraic normal form of Boolean functions. 
+
+<<>>=
+  library(boolfun)
+  p <- Polynomial("01010110")
+  print(p)
+  class(p)
+  q <- Polynomial(c(1,0,1,1))
+  print(q)
+  p*q
+  deg(p*q + p)
+@
+
+
+\section{The algebraic normal form} \label{sec:anf}
+
+Let $\mathbb{F}_2$ denote the finite field (Galois field) with two elements where addition (exclusive or) is written $\oplus$. Before giving the definition of the algebraic normal form, we need to define a total order over elements of $\mathbb{F}_2^n$. The position of the element $(x_1,\dots ,x_n)$ is simply the integer encoded in base 2 by $x_n\dots x_1$. 
+
+\paragraph*{Example.} For $n=3$, the total order $\leq$ gives the following ordering
+$$ (0,0,0)\leq (1,0,0)\leq (0,1,0)\leq (1,1,0)\leq (0,0,1)\leq (1,0,1)\leq (0,1,1)\leq (1,1,1) $$
+
+\begin{defn}
+The \emph{algebraic normal form} of $f\,:\,\{0,1\}^n\rightarrow \{0,1\}$ is the unique element $P$ of the quotient ring $$ \mathbb{F}_2[x_1,\dots,x_n]/<x_1^2=x_1,\dots,x_n^2=x_n> $$  defined as follows
+$$
+P(\bar{x}) = \bigoplus_{\bar{a}\in\mathbb{F}_{2}^{n}}h(\bar{a})\cdot\bar{x}^{\bar{a}}     \label{eq:anf}
+$$
+where $\bar{x}^{\bar{a}}=\prod_{i=1}^{n}x_{i}^{a_{i}}$ and $h(\bar{a})$, the coefficient of the monomial 
+$\bar{x}^{\bar{a}}$, is defined according to the M\"obius inversion principle 
+\begin{equation}
+h(\bar{x})=\bigoplus_{\bar{a} \leq \bar{x}} f(\bar{a}) \label{eq:mobius}
+\end{equation}
+\end{defn}
+
+\paragraph*{Example.} For $n=3$ the definition of $P(\bar{x})$ is written 
+\begin{eqnarray} 
+P(x_1,x_2,x_3) & = &    h(0,0,0)\quad \oplus h(1,0,0)x_1\quad \oplus h(0,1,0)x_2\quad \oplus h(1,1,0)x_2x3     \nonumber\\
+               &\oplus& h(0,0,1)x3    \oplus h(1,0,1)x_1x_3   \oplus h(0,1,1)x_2x_3   \oplus h(1,1,1)x_1x_2x_3 \nonumber
+\end{eqnarray}
+and the coefficients $h(\cdot)$ are obtained from equation (\ref{eq:mobius}) as follows
+\begin{eqnarray}
+h(0,0,0)    & = &  f(0,0,0) \nonumber\\
+h(1,0,0)    & = &  f(0,0,0) \oplus f(1,0,0) \nonumber\\
+h(0,1,0)    & = &  f(0,0,0) \oplus f(0,1,0) \nonumber\\
+h(1,1,0)    & = &  f(0,0,0) \oplus f(1,0,0) \oplus f(0,1,0) \oplus f(1,1,0) \nonumber\\
+            & \vdots &   \nonumber\\
+h(1,1,1)    & = &  \bigoplus_{\bar{x}} f(\bar{x}) \nonumber
+\end{eqnarray} 
+Note that the equations above can be written as follows 
+
+\begin{eqnarray}
+f(0,0,0)    & = &  h(0,0,0) \nonumber\\
+f(1,0,0)    & = &  h(0,0,0) \oplus h(1,0,0) \nonumber\\
+f(0,1,0)    & = &  h(0,0,0) \oplus f(0,1,0) \nonumber\\
+f(1,1,0)    & = &  h(0,0,0) \oplus h(1,0,0) \oplus h(0,1,0) \oplus h(1,1,0) \nonumber\\
+            & \vdots &   \nonumber\\
+f(1,1,1)    & = &  \bigoplus_{\bar{x}\in\mathbb{F}_2^n} h(\bar{x}) \nonumber
+\end{eqnarray} 
+which shows that the transform (\ref{eq:mobius}) is its own inverse (i.e. involution).
+
+<<>>=
+tt <- c(1,1,0,1,0,0,1,1)
+tth <- mobiusTransform( tt )
+print(tth)
+p <- Polynomial( tth )
+print(p)
+@
+
+In the code above, \Robject{tt} holds the return values of a Boolean function with $3$ input variables. The corresponding polynomial \Robject{p} is defined by giving the coefficient for each of the eight possible monomials, that is, the truth table of the Boolean function $h$ in equation (\ref{eq:mobius}). 
+
+
+\section{The \Robject{Polynomial} object}
+The multiplication and addition are discussed in the following section. The \Robject{Polynomial} object inherits from \Rpackage{R.oo}'s \Robject{Object} and figure \ref{fig:methods} gives an overview of the implemented methods. 
+
+
+\begin{figure}\small
+\vspace*{.1in}
+\begin{tabular}{r|l} 
+{\bf method}        &   {\bf returned value} \\
+\hline
+ \Robject{n()}         &    number of input variables $n$ \\
+ \Robject{anf()}       &    truth table (vector of integers)\\
+ \Robject{deg()}       &    algebraic degree \\
+ \Robject{anf()}       &    vector of coefficients for $2^n$ monomials \\
+ \Robject{add(p)}      &    \Robject{Polynomial} obtained by adding self with \Robject{p} \\
+ \Robject{mul(p)}      &    \Robject{Polynomial} obtained by multiplying self with \Robject{p} \\
+ \Robject{len()}       &    returns $2^n$ \\
+\vspace*{.1in}
+ \Robject{string()}    &    algebraic normal form as character string \\
+\hline
+\end{tabular}
+\caption{\label{fig:methods} Public methods of \Robject{Polynomial}.}
+\end{figure}
+
+
+\paragraph{Representation.} A polynomial is represented by a vector holding the coefficients of all monomials (additive terms). For a polynomial with variables $x_1,...,x_n \in \{0,1\}$ there are $2^n$ such monomials (as $x_i^2=x_i \forall i$), and the coefficients being in $\{0,1\}$, the polynomial is represented by a vector of length $2^n$ holding binary values. Note that this vector is the truth table of the Boolean function $h$ that is used in the definition of the algebraic normal form (equation \ref{eq:mobius}). Future versions will use more efficient data structures (binary decision diagrams). 
+Monomials in $n$ variables can be seen as vectors of $\mathbb{F}_2^n$. Thus the order $\leq$ defined in the previous section can be applied to monomials. For $n=3$, monomials are ordered as follows $$1\leq x_1\leq x_2\leq x_1x_2\leq x_3\leq x_1x_3\leq x_2x_3\leq x_1x_2x_3$$ Hence the vector $$(1,0,0,1,1,0,1,1)$$ represents the polynomial $$1\oplus x_3 \oplus x_1x_3 \oplus x_2x_3 \oplus x_1x_2x_3$$.
+<<>>=
+p <- Polynomial("10011011")
+p
+@
+
+
+
+\section{Operations on polynomials}
+
+This section gives details on how the addition and multiplication of polynomials are implemented, given that Boolean polynomials with $n$ indeterminates are represented by a vector of $2^n$ integers as explained in the previous section. More suitable data structures yield much better complexities than the ones exposed in this section and will be used in future versions. The following algorithms are fast enough for small values of $n$ (up to about $14$ to give an idea). All the following algorithms are implemented in C.
+
+\paragraph*{Addition.} The addition is straightforward and is carried in $\mathcal{O}(2^n)$ according to algorithm \ref{alg:1}.
+
+\begin{center}
+\begin{algorithm}[H] 
+  \SetLine
+  \KwData{$p_1, p_2$ (vectors of coefficients)}
+  \KwResult{$p_1$ (will hold the coefficients of the resulting algebraic normal form)}
+  \SetLine
+  \For{ $i = 0, ..., 2^n-1$ }{
+    $p_1[i] \leftarrow p_1[i] + p_2[i]$ mod $2$ \\
+  } %endfor
+  \caption{Adding two polynomials.}
+  \label{alg:1}
+\end{algorithm}
+\end{center}
+
+\paragraph*{Multiplication of monomials.} Monomials are trivially represented by a vector of length $n$, i.e., $(0,1,1)$ and $(0,0,0)$ represent $x_2x_3$ and $1$ respectively. Multiplying two monomials is equivalent to applying a bitwise or to both input vectors as shown in algorithm \ref{alg:2}. Hence this multiplication is carried in $\mathcal{O}(n)$.
+\begin{center}
+\begin{algorithm}[H] 
+  \SetLine
+  \KwData{$m_1, m_2$ (vectors of length $n$)}
+  \KwResult{$m_1$ (will hold the coefficients of the resulting monomial)}
+  \SetLine
+  \For{ $i = 0, ..., n-1$ }{
+    $m_1[i] \leftarrow m_1[i]$ or $m_2[i]$  \\
+  } %endfor
+  \caption{Multiplying two monomials.}
+  \label{alg:2}
+\end{algorithm}
+\end{center}
+
+\paragraph*{Multiplication of Polynomials.} The multiplication is carried by considering each of the monomials in one operand, and summing the product of that monomial with all monomials in the other operand as in algorithm \ref{alg:3}. Hence this multiplication is carried in $\mathcal{O}(n\cdot 2^{2n})$.
+\begin{center}
+\begin{algorithm}[H] 
+  \SetLine
+  \KwData{$p_1, p_2$ (vectors of length $2^n$)}
+  \KwResult{$res$ (will hold the coefficients of the resulting polynomial)}
+  \SetLine
+  $res \leftarrow zerovector(2^n)$ \\
+  \For{ $i = 0, ..., 2^n-1$ }{
+    \If{ $p_1[i]=1$ }{ 
+      \For{ $j = 0, ..., 2^n-1$ }{
+        \If{ $p_2[i]=1$ }{ 
+          $ m \leftarrow monomial(i) \times monomial(j)$ \\
+          $ idx \leftarrow indexofmonomial(m) $ \\
+          $res[idx] \leftarrow res[idx] + 1$ mod $2$  \\
+        }
+     }
+    } % endif
+  } %endfor
+  \caption{Multiplying two polynomials.}
+  \label{alg:3}
+\end{algorithm}
+\end{center}
+
+
+
+\section{Conclusion}
+A free open source package to manipulate Boolean functions is available at R CRAN \url{cran.r-project.org}. The package implements some functionality to handle multivariate polynomials over $\mathbb{F}_2$ such as addition and multiplication. An effort has been made to optimize execution speed rather than memory usage. Future versions will implement other representations (data structures) that lead to better complexities for operations on polynomials when $n$ is too large.
+
+\end{document}
+

@@ -14,7 +14,9 @@
 0.2.6   - started testing with package RUnit
 
 0.2.7   - took care of warnings concerning documentation (\usage section)
-	- added keyword 'symbolmath'
 
+0.2.8   - removed legacy use of .First.lib
+        - edited NAMESPACE file
+        - updated vignette (ANF algorithm)
 
 

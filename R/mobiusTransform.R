@@ -6,8 +6,7 @@ mobiusTransform <- function ( truthTable ) # /!\ should check truthTable values 
         stop("bad truth table length")
     res <- .Call( "mobiusTransform",
         as.integer(truthTable),
-        as.integer(len),
-        DUP=FALSE, PACKAGE="boolfun")
+        as.integer(len))
     res
 }
 

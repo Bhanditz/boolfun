@@ -6,6 +6,8 @@
 \alias{[[.Polynomial}
 \alias{deg.Polynomial}
 \alias{len.Polynomial}
+\alias{pad.Polynomial}
+\alias{pad}
 \alias{n.Polynomial}
 \alias{string.Polynomial}
 \alias{equals.Polynomial}
@@ -41,6 +43,7 @@
     \tab \code{string()}    \tab   algebraic normal form as string \cr
     \tab \code{print()}     \tab   displays the result of \code{string()} \cr
     \tab \code{len()}       \tab   returns \eqn{2^n}{2^n} \cr
+    \tab \code{pad()}		\tab   (not used)
     }
 }
 \author{
