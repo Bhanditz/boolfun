@@ -1,7 +1,7 @@
 0.2.1	- initial R version
 
 0.2.2	- added object Assignment
-	    - added string.BooleanFunction
+	- added string.BooleanFunction
 
 0.2.3	- added object Polynomial
         
@@ -12,4 +12,9 @@
         - sorted monomials in Polynomial::string()
 
 0.2.6   - started testing with package RUnit
+
+0.2.7   - took care of warnings concerning documentation (\usage section)
+	- added keyword 'symbolmath'
+
+
 

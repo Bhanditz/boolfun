@@ -14,7 +14,7 @@
     Implements an element of \eqn{\{0,1\}^n}{{0,1}^n} that can be used as input to a \code{BooleanFunction} or \code{Polynomial} instance. 
 }
 \usage{
-    x <- Assignment( initializer )
+    Assignment( initializer )
 }
 \arguments{
     \item{initializer}{a vector containing \eqn{2^n}{2^n} integers in \eqn{\{0,1\}}{\{0,1\}} or a string holding \eqn{2^n}{2^n} characters in \eqn{\{'0','1'\}}{\{'0','1'\}}.}

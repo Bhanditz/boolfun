@@ -18,7 +18,7 @@
     Implements an element of \eqn{GF(2)[x_1,\dots,x_n] / <x_1^2=x_1,\dots,x_n^2=x_n>}{e}, that is, a multivariate polynomial (in \eqn{x_1,\dots ,x_n}{x1,...,xn} where \eqn{x_i^2=x_i}{xi^2=xi} holds for all \eqn{i}{i}) with coefficients in GF(2), the field with two elements. Some basic functionality such as addition and multiplication are implemented. 
 }
 \usage{
-    x <- Polynomial( initializer )
+    Polynomial( initializer )
 }
 \arguments{
     \item{initializer}{a vector containing \eqn{2^n}{2^n} integers in \eqn{\{0,1\}}{\{0,1\}} or a string holding \eqn{2^n}{2^n} characters in \eqn{\{'0','1'\}}{\{'0','1'\}}.}

@@ -36,7 +36,7 @@
     For a full list see the section Public Methods below.  
 }
 \usage{
-    f <- BooleanFunction( initializer )
+    BooleanFunction( initializer )
 }
 \arguments{
     \item{initializer}{a vector containing \eqn{2^n}{2^n} integers in \eqn{\{0,1\}}{\{0,1\}} or a string holding \eqn{2^n}{2^n} characters in \eqn{\{'0','1'\}}{\{'0','1'\}}.}
