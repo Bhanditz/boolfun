@@ -16,7 +16,7 @@ walshTransform( truthTable )
   \code{walshTransform} returns a vector of integers having the same length as the input vector. The i\eqn{^{th}}{^th} entry can be seen as a "similarity" or "association" with the linear function determined by the integer \eqn{i}{i} (i.e. there are \eqn{2^n}{2^n} such functions). 
 }
 \details{
-    The value is computed in \eqn{ \mathcal{O}(n2^n) }{O(n2^n)} using the Fast Walsh Transform (FWT). For more information, type \code{vignette(boolfun)}.
+    The value is computed in \eqn{ \mathcal{O}(n2^n) }{O(n2^n)} using C code according to the Fast Walsh Transform algorithm. For more information, type \code{vignette(boolfun)}.
 }
 \seealso{ \code{\link{BooleanFunction}} }
 

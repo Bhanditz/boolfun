@@ -4,6 +4,7 @@
 \alias{wh.BooleanFunction}
 \alias{tt.BooleanFunction}
 \alias{anf.BooleanFunction}
+\alias{ANF.BooleanFunction}
 \alias{deg.BooleanFunction}
 \alias{n.BooleanFunction}
 \alias{ci.BooleanFunction}
@@ -13,9 +14,9 @@
 \alias{isRes.BooleanFunction} 
 \alias{isCi.BooleanFunction} 
 \alias{equals.BooleanFunction}
-\alias{hashCode.BooleanFunction}
 \alias{print.BooleanFunction} 
 \alias{anf}
+\alias{ANF}
 \alias{wh}
 \alias{tt}
 \alias{deg}
@@ -32,7 +33,7 @@
 \description{
     The class \code{BooleanFunction} implements functionality to assess cryptographic properties of Boolean functions 
     such as nonlinearity, algebraic immunity, resiliency, correlation immunity, ... 
-    For a full list, type \code{library(help=boolfun)}. Future versions will implement more functionality.  
+    For a full list see the section Public Methods below.  
 }
 \usage{
     f <- BooleanFunction( initializer )
@@ -44,7 +45,7 @@
     The returned value \code{f} is an S3 object which is defined using the R.oo package. Methods of the returned value, say \code{deg()}, can be accessed in two ways using \code{f$deg()} or \code{deg(f)}. 
 }
 \details{
-    The representations are computed in \eqn{\mathcal{O}(n2^n)}{O(n2^n)} using C++ code. They are computed only once, the first time they are needed/called by the user and stored in private fields. The same applies to some properties, namely algebraic immunity, algebraic degree and correlation immunity. Efforts have been made to optimize execution time rather than memory usage. For more details, see the package vignette (using the R command \code{vignette(boolfun)}) or see the examples below.
+    The representations are computed in \eqn{\mathcal{O}(n2^n)}{O(n2^n)} using C++ code. They are computed only once, the first time they are needed/called by the user and stored in private fields. The same applies to some properties, namely algebraic immunity, algebraic degree and correlation immunity. Efforts have been made to optimize execution time rather than memory usage. For more details, see the package vignette (using the R command \code{vignette(boolfun)}). 
 }
 \section{Private Fields}{
     Heavy computations are carried only once, the first time they are needed/called. The results are stored/cached in private fields. \cr
@@ -62,29 +63,27 @@
 }
 \section{Public Methods}{
 
-    Three (unique) representations are implemented: \cr
+    The following representations are implemented: \cr
     \tabular{rll}{
-    \tab \code{tt()}    \tab    returns the truth table (vector of integers) \cr
-    \tab \code{wh()}    \tab    returns the walsh spectrum (vector of integers) \cr     
-    \tab \code{anf()}   \tab    returns the vector of coefficients of each of the \eqn{2^n}{2^n} monomials - see \code{\link{mobiusTransform}} \cr
+    \tab \code{tt()}    \tab    returns the truth table (vector of integers)                                    \cr
+    \tab \code{wh()}    \tab    returns the walsh spectrum (vector of integers)                                 \cr     
+    \tab \code{anf()}   \tab    returns the vector of coefficients for each of the \eqn{2^n}{2^n} monomials     \cr
+    \tab \code{ANF()}   \tab    returns the algebraic normal form as an instance of \code{Polynomial}           \cr
     }
-    Some general properties of the boolean function: \cr
+    Some general properties:                                                                                    \cr
     \tabular{rll}{
-    \tab \code{n()}     \tab    returns the number of input variables (i.e. \eqn{f \;:\; \{0,1\}^n \rightarrow \{0,1\}}{f : \{0,1\}^n -> \{0,1\}}) \cr
-    \tab \code{deg()}   \tab    returns the algebraic degree of the boolean function  \cr
+    \tab \code{n()}     \tab    returns the number of input variables (\eqn{n}{n})                              \cr
+    \tab \code{deg()}   \tab    returns the algebraic degree                                                    \cr
     }
-    Some properties relevant for cryptographic applications: \cr
+    Some properties relevant for cryptographic applications:                                                    \cr
     \tabular{rll}{
-    \tab \code{ai()}    \tab    returns the algebraic immunity     \cr
-    \tab \code{nl()}    \tab    returns the nonlinearity           \cr
-    \tab \code{ci()}    \tab    returns the correlation immunity   \cr
-    \tab \code{res()}   \tab    returns the resiliency             \cr
-    }
-    Some conditionals: \cr
-    \tabular{rll}{
-    \tab \code{isBal()}  \tab returns true if the function has as many 0s as 1s in its truth table   \cr
-    \tab \code{isCi(t)}  \tab returns true if the function has correlation immunity \code{t}         \cr
-    \tab \code{isRes(t)} \tab returns true if the function has resiliency \code{t}                   \cr
+    \tab \code{ai()}    \tab    returns the algebraic immunity                                                  \cr
+    \tab \code{nl()}    \tab    returns the nonlinearity                                                        \cr
+    \tab \code{ci()}    \tab    returns the correlation immunity                                                \cr
+    \tab \code{res()}   \tab    returns the resiliency                                                          \cr
+    \tab \code{isBal()} \tab returns true if the function has as many 0s as 1s in its truth table              \cr
+    \tab \code{isCi(t)} \tab returns true if the function has correlation immunity \code{t}                    \cr
+    \tab \code{isRes(t)}\tab returns true if the function has resiliency \code{t}                              \cr
     }
 }
 \section{Overridden Methods}{
@@ -92,14 +91,13 @@
     \tabular{rll}{
     \tab \code{equals()}    \tab    compares truth tables and returns true if they are the same     \cr
     \tab \code{print()}     \tab    displays the number of variables                                \cr
-    \tab \code{hashCode()} \tab     returns \code{Object}'s \code{hashCode} of the truth table      \cr
     }
 }
 \author{
   F.Lafitte
 }
 \seealso{ 
-    \code{\link{mobiusTransform}}, \code{\link{walshTransform}}, \code{\link[R.oo:getFields.Object]{R.oo:Object}}
+    \code{\link{Polynomial}}, \code{\link[R.oo:Object]{R.oo:Object}}, \code{\link{mobiusTransform}}, \code{\link{walshTransform}}
 }
 \examples{
     truthTable <- c(0,1,1,0,1,0,0,1)

@@ -1,0 +1,15 @@
+0.2.1	- initial R version
+
+0.2.2	- added object Assignment
+	    - added string.BooleanFunction
+
+0.2.3	- added object Polynomial
+        
+0.2.4   - added method BooleanFunction::ANF (returns Polynomial)
+
+0.2.5   - removed hashCode()
+        - added operators [[, +, * for Polynomial
+        - sorted monomials in Polynomial::string()
+
+0.2.6   - started testing with package RUnit
+

@@ -10,15 +10,16 @@ Cryptographic Boolean Functions
 }
 
 \description{
-This package can be used to assess cryptographic properties of Boolean functions (such as nonlinearity, algebraic immunity, resiliency, ...).
+This package can be used to assess cryptographic properties of Boolean functions such as nonlinearity, algebraic immunity, resiliency, etc... It also implements functionality to handle Boolean polynomials, namely multiplication and addition of multivariate polynomials with coefficients and exponents in \{0,1\}. 
 }
 
 \details{
 \tabular{ll}{
 Package: \tab boolfun\cr
-Version: \tab 0.2.1\cr
+Version: \tab 0.2.6\cr
 Date: \tab 2009\cr
 Depends: \tab R (>= 2.3.0), R.oo\cr
+Suggests: \tab RUnit \cr
 License: \tab GPL (>= 3)\cr
 Built: \tab R 2.9.1; i686-pc-linux-gnu; 2009-12-10 13:57:37 UTC; unix\cr
 }
@@ -32,7 +33,8 @@ boolfun-package         Cryptographic Boolean Functions
 
 Further information is available in the following vignettes:
 \tabular{ll}{
-\code{boolfun} \tab Cryptographic Properties of Boolean functions (source, pdf)\cr
+\code{boolfun}    \tab Cryptographic Properties of Boolean functions (source, pdf)\cr
+\code{polynomial} \tab Handling Boolean Polynomials with the boolfun Package (source, pdf)\cr
 }
 See the examples below for an overview of how to use the package.
 }
@@ -48,8 +50,9 @@ Maintainer: Frederic Lafitte <frederic.lafitte@rma.ac.be>
 \keyword{logic}
 
 \seealso{
-    \code{\link[R.oo:R.oo-package]{R.oo}}
+    \code{\link{BooleanFunction}}, \code{\link{Polynomial}}, \code{\link{Assignment}}, \code{\link[R.oo:R.oo-package]{R.oo}}
 }
+
 \examples{
 
     # Functions are defined by their truth tables (string or integer vector).
@@ -58,7 +61,7 @@ Maintainer: Frederic Lafitte <frederic.lafitte@rma.ac.be>
     h <- BooleanFunction( c(tt(f), tt(g)) ) # concatenation
 
     # You can print information on the function as follows.
-    print ( h )     # Prints "Boolean function with 4 variables".
+    print ( h )     # Prints "Boolean function with 4 variables.".
     print ( tt(h) ) # Prints the truth table.
 
     # Note that the methods can be called 'object$method()' or 'method(object)': 

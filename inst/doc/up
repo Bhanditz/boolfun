@@ -1,0 +1,12 @@
+R CMD Sweave boolfun.Rnw
+#latex boolfun.tex
+#latex boolfun.tex
+#latex boolfun.tex
+#dvipdf boolfun.dvi
+pdflatex boolfun.tex
+bibtex boolfun
+pdflatex boolfun.tex
+if [ "$1" == "c" ]; then
+ evince boolfun.pdf 
+fi
+

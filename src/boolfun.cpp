@@ -5,6 +5,8 @@ R_CallMethodDef callMethods[] = {
       {"walshTransform",    (void*(*)()) & walshTransform,    2},
       {"algebraicImmunity", (void*(*)()) & algebraicImmunity, 2},
       {"degree",            (void*(*)()) & algebraicImmunity, 2},
+      {"add",               (void*(*)()) & algebraicImmunity, 3},
+      {"multiply",          (void*(*)()) & multiply,          3},
       { NULL, NULL, 0}
 };
 

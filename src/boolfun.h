@@ -11,5 +11,7 @@ SEXP    mobiusTransform     ( SEXP truth_table,  SEXP nb_var );
 SEXP    walshTransform      ( SEXP truth_table,  SEXP nb_var );
 SEXP    algebraicImmunity   ( SEXP truth_table,  SEXP nb_var );
 SEXP    degree              ( SEXP coeff_of_anf, SEXP nb_var ); 
+SEXP    add                 ( SEXP anfA, SEXP anfB, SEXP nb_var );
+SEXP    multiply            ( SEXP anfA, SEXP anfB, SEXP nb_var );
 }
 

@@ -1,0 +1,359 @@
+\documentclass{article}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm2e}
+\usepackage{fancyvrb}
+\setlength{\parindent}{0cm}
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}\usepackage{hyperref}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+
+\newtheorem{thm}{Theorem}
+  \theoremstyle{definition}
+  \newtheorem{example}[thm]{Example}
+  \theoremstyle{definition}
+  \newtheorem{defn}[thm]{Definition}
+  \newtheorem{prop}[thm]{Proposition}
+  \newtheorem{fact}[thm]{Fact}
+
+%    E N D     H E A D E R    
+\begin{document}
+
+\title{The \Rpackage{boolfun} Package : Cryptographic Properties of Boolean Functions}
+\author{Fr\'ed\'eric Lafitte}
+%\VignetteIndexEntry{Cryptographic Properties of Boolean Functions}
+\maketitle
+\tableofcontents
+\listofalgorithms
+\clearpage
+
+
+\section{Introduction}
+
+
+This document has two goals (1) guide the user in using the \Rpackage{boolfun} package (2) explain some implementation choices and features. 
+
+\paragraph*{Boolean functions.}
+A Boolean function is a mapping from $\{0,1\}^n$ to $\{0,1\}$. They have many applications (...) and this package has been developed considering cryptographic ones. In particular the security of stream ciphers relies on a careful choice of the Boolean functions used in the cipher. The same 
+applies to S-Boxes. However functionality to assess those objects has not been implemented yet.
+
+\paragraph*{Motivations.}
+The lack of open source software to assess cryptographic properties of Boolean functions and the increasing interest for statistical testing of properties related to random Boolean functions \cite{Filiol02, Saarinen06, EJT07, ADMS09} are the main motivations for the development of this package.
+
+\paragraph*{The R language.}
+R is a free open-source collaborative effort widely used for (but not restricted to) data analysis and numerical computing. It is an implementation of S, a statistical programming language that appeared around 1975. More information can be found in \cite{R1996,R2001} and \url{www.r-project.org}.
+
+\paragraph*{Notations.}
+In this document as well as in the package documentation the following notation is used. 
+
+\begin{tabular}{ll}
+$\mathcal{B}_{n}$     &       is the set of Boolean functions with $n$ input variables. \tabularnewline
+$\mathcal{A}_{n}$     &       is the set of affine functions, that is $\{f\in \mathcal{B}_n\mid deg(f)=1\}$. \tabularnewline
+$\mathcal{L}_{n}$     &       is the set of linear functions, that is $\{f\in \mathcal{A}_n\mid f(0,...,0)=0\}$. \tabularnewline
+$deg(f)$              &       is the algebraic degree of $f$. \tabularnewline
+$supp(f)$             &       is the support of $f\in\mathcal{B}_n$, that is the set $\{\bar{x}\in\mathbb{F}_{2}^{n}\mid f(\bar{x})\neq0\}.$\tabularnewline
+$\bar{x}=(x_1,...,x_n)$  & is an element of $\mathbb{F}_2^n$ (equivalently $\{0,1\}^n$). \tabularnewline
+$d_H(f,g)$            &       is the Hamming distance betweeen $f$ and $g$, that is   \tabularnewline
+                      &        $d_H(f,g)=\#\{\bar{x}\in\mathbb{F}_{2}^{n}\mid f(\bar{x})\neq g(\bar{x})\}$.  \tabularnewline    
+$w_H(f)$              &       is the Hamming weight of $f$, that is $w_H(f)=\# supp(f)$.       \tabularnewline
+$f\oplus g$           &       with $f,g\in \mathcal{B}_n$ is the bitwise exor of their thruth tables. \tabularnewline
+$f(\bar{x})\oplus g(\bar{x})$ & is the exor of values returned by $f$ and $g$ on input $\bar{x}$. \tabularnewline
+$\parallel$           &       denotes concatenation. For example, $ 0\parallel 1\parallel 1 = 011. $
+\end{tabular}
+
+\paragraph*{}The remainder of this document goes as follows. Section 2 defines and explains the three representations implemented in the package, namely the truth table, algebraic normal form and Walsh spectrum, as well as how they are computed. Section 3 focuses on cryptographic properties of Boolean functions that are relevant for the design of stream ciphers (i.e. cryptographic pseudo-random generators), namely nonlinearity, algebraic immunity, correlation immunity and resiliency. Section 4 discusses some implementation details, such as the object oriented features that are inherited from \Robject{Object} which is defined in the \Rpackage{R.oo} package \cite{Roo}. Finally section 5 concludes the document.
+
+
+\section{Representations}
+
+
+Three representations are implemented, the algebraic normal form, the truth table and the Walsh spectrum. The truth table is given by the user who initializes the object, the other representations are both computed in $\mathcal{O}(n2^n)$ using C code. An effort has been made to 
+optimize execution speed rather than memory usage.
+
+\subsection{Truth table}\label{sec:tt}
+The truth table is the most natural way to represent a Boolean function. It is a table with two columns, one for the input/assignment, and the other for the corresponding output/return value. Note that if a total order is defined over the assignments (inputs) of the Boolean function, the truth table can be uniquely represented by a vector of length $2^n$.
+<<>>=
+library(boolfun)
+f <- BooleanFunction( c(0,1,1,1,0,1,0,0) ) # n = 3
+g <- BooleanFunction( '01010101' )
+h <- BooleanFunction( c(tt(f), tt(g)) )
+@
+For now, the only way to define a Boolean function is with its truth table. The truth table can be a vector of integers or a string of length a power of $2$. In the above code \Robject{h} is defined by the concatenation of the truth tables of \Robject{f} and \Robject{g}.
+<<>>=
+h
+h$tt()
+@
+The returned value of \Robject{h\$tt()} (which is equivalent to \Robject{tt(h)}) is a vector of integers. The order $\leq$ over $\mathbb{F}_2^n$ mentioned above is defined as follows.
+Let $\parallel$ denote concatenation. Then $x_{n}\parallel \dots \parallel x_{1}$ is the assignment number (counting from zero) in base 2. For example, with $n=3$ we have
+\[ (0,0,0)\leq(1,0,0)\leq(0,1,0)\leq(1,1,0)\leq(0,0,1)\leq(1,0,1)\leq(0,1,1)\leq(1,1,1) \]
+
+\subsection{Algebraic Normal Form}
+Any Boolean function $f(x_{1},...,x_{n})$ can be written as \[ f(0,x_{2},...,x_{n})\oplus x_{1}\cdot f(1,x_{2},...,x_{n})\oplus x_{1}\cdot f(0,x_{2},...,x_{n})\] because if $x_{1}=0$, the expression becomes $f(0,x_{2},...,x_{n})$, and if $x_{1}=1$, it becomes $f(1,x_{2},...,x_{n})$. The functions $f(1,x_{2},...,x_{n})$ and $f(0,x_{2},...,x_{n})$ have $n-1$ variables and each can be further decomposed in two functions with $n-2$ variables. Once $f$ is expressed with ($2^n$) constant functions it is expressed in algebraic normal form, i.e. as a sum of all possible products of input variables. For example, $1\oplus x_3 \oplus x_1x_2 \oplus x_2x_3 \oplus x_1x_2x_3$ is the algebraic normal form of some function in $\mathcal{B}_3$. The algebraic normal form is thus a multivariate polynomial and the constant functions (those obtained by decomposition) are the coefficients of the $2^n$ products of input variables (i.e. monomials).
+
+A more formal definition follows, where $\leq$ is the ordering of vectors in $\mathbb{F}_2^n$ defined at the end of section \ref{sec:tt}.
+
+\begin{defn}
+The \emph{algebraic normal form} of $f\in\mathcal{B}_{n}$ is the multivariate polynomial $P$ defined as follows.
+$$
+P(\bar{x}) = \bigoplus_{\bar{a}\in\mathbb{F}_{2}^{n}}h(\bar{a})\cdot\bar{x}^{\bar{a}}     \label{eq:anf}
+$$
+where $\bar{x}^{\bar{a}}=\prod_{i=0}^{^{n-1}}x_{i}^{a_{i}}$ and $h(\bar{a})$, the coefficient of the monomial 
+$\bar{x}^{\bar{a}}$, is defined by
+\begin{equation}
+h(\bar{x})=\bigoplus_{\bar{a} \leq \bar{x}} f(\bar{a}) \label{eq:mobius}
+\end{equation}
+which is known as the M\"obius inversion. 
+\end{defn}
+
+Note that the algebraic normal form can be easily determined if the values of $h(\cdot)$ are known. Those values are returned by the method \Rfunction{anf()} as in the following code.
+<<>>=
+anf <- f$anf()
+anf
+@
+The returned value is a vector of $2^n$ binary integers and \Robject{anf[i]} equals one if the \Robject{i}$^{th}$ monomial (according to the order defined over the assignments) appears in the algebraic normal form. That is, the monomials are sorted as follows $$ 1,\:x_1,\: x_2,\: x_1x_2,\: x_3,\: x_1x_3,\: x_2x_3,\: x_1x_2x_3$$ and \Robject{f} can thus be written $ x_1 \oplus x_2 \oplus x_1x_2 \oplus x_2x_3 $.
+
+\paragraph*{Implementation}
+The algebraic normal form is computed in $\mathcal{O}(n2^n)$ using C code according to the following algorithm.
+
+\begin{center}
+\begin{algorithm}[H] 
+  \SetLine
+  \KwData{$tt$ (truth table), $n$ (number of variables)}
+  \KwResult{$tt$ (will hold the coefficients of the anf)}
+  \SetLine
+  $u \leftarrow$ all zero vector of length $2^{n-1}$ \\
+  $v \leftarrow$ all zero vector of length $2^{n-1}$ \\
+  \For{ $i = 0, ..., 2^n-1$ }{
+    \For{ $j = 0, ..., 2^{n-1}-1$ }{
+        $t[j] \leftarrow tt[2j]$ \\
+        $u[j] \leftarrow tt[2j] \oplus tt[2j+1]$\\
+    }
+    $tt \leftarrow t \parallel u$ \\
+  } %endfor
+  \caption{Computing the algebraic normal form.}
+  \label{alg:1}
+\end{algorithm}
+\end{center}
+
+\subsection{The Walsh spectrum}\label{sec:walsh}
+The Walsh transform of $f\in\mathcal{B}_{n}$ is denoted $W_{f}(\cdot)$
+and maps elements $\bar{x}\in\mathbb{F}_{2}^{n}$ to $\mathbb{Z}$
+as follows \[
+W_{f}(\bar{x})=\sum_{\bar{a}\in\mathbb{F}_{2}^{n}}(-1)^{f(\bar{a})\oplus\bar{x}\cdot\bar{a}}\]
+where $\bar{x}\cdot\bar{a}$ can be seen as a linear Boolean function
+of $\bar{a}$ determined by the $\bar{x}$ vector. Let's denote $g_{\bar{x}}(\bar{a})=\bar{x}\cdot\bar{a}$
+for a given $\bar{x}$. Then, $(-1)^{f(\bar{a})\oplus g_{\bar{x}}(\bar{a})}$
+equals $1$ if the outputs of functions $f$ and $g_{\bar{x}}$ are
+the same, and $-1$ otherwise. Hence the returned value of $W_{f}(\bar{x})$
+is the number of inputs $\bar{a}$ for which $f(\bar{a})=g_{\bar{x}}(\bar{a})$,
+minus the number of inputs $\bar{a}$ for which $f(\bar{a})\neq g_{\bar{x}}(\bar{a})$.\[
+W_{f}(\bar{x})=\left(2^{n}-d_{H}(f,g_{\bar{x}})\right)-\left(d_{H}(f,g_{\bar{x}})\right)=2^{n}-2d_{H}(f,g_{\bar{x}})\]
+
+
+As $W_{f}(\bar{x})$ measures the similarity between $f(\bar{a})$
+and the linear function $g_{\bar{x}}(\bar{a})=\bar{x}\cdot\bar{a}$,
+the spectrum $W_{f}(\cdot)$ contains this similarity for all linear
+functions.
+<<>>=
+wh <- f$wh()
+wh
+@
+The returned value is a vector of $2^n$ integers and \Robject{wh[i]} is the value of $W_f(\cdot)$ on input the \Robject{i}$^{th}$ vector of $\mathbb{F}_2^n$ according to the total order defined at the end of section \ref{sec:tt}. For example the fourth vector of $\mathbb{F}_2^n$ is $(1,1,0)$ and defines the linear function $g_{(1,1,0)}(\bar{x}) = x_1 \oplus x_2$. Hence, according to \Robject{f\$wh()}, the function \Robject{f} is better approximated by $g_{(1,1,0)}$ than by, for example, $g_{(1,1,1)} = x_1 \oplus x_2 \oplus x_3$.
+
+\paragraph*{Implementation.}
+The Walsh spectrum is computed in $\mathcal{O}(n2^n)$ using C code according to the Fast Walsh-Hadamard Transform \cite{Massey98}(algorithm \ref{alg:2}).
+
+\begin{center}
+\begin{algorithm}[H] 
+  \SetLine
+  \KwData{$tt$ (truth table), $n$ (number of variables)}
+  \KwResult{$res$ (vector containing $W_f(\bar{x})\forall \bar{x}$)}
+  \SetLine
+  \For{ $i = 0, ..., 2^n - 1$ }{ $res[i]\leftarrow (-1)^{tt[i]}$  }
+  \For{ $i = 1, ..., 2^n$ }{
+    $m \leftarrow 2^{i}$\\
+    $halfm \leftarrow 2^{i-1}$ \\
+    \For{ $k$ in $0, ..., 2^n-1$ by $m$}{
+        $t_1 \leftarrow k$\\
+        $t_2 \leftarrow k + halfm$ \\
+        \For{ $j=0,...,halfm-1$} {
+            $a \leftarrow res[t_1]$ \\
+            $b \leftarrow res[t_2]$ \\
+            $res[t_1] \leftarrow a + b$ \\
+            $res[t_1] \leftarrow a - b$ \\
+            $t_1 \leftarrow t_1 + 1$ \\
+            $t_2 \leftarrow t_2 + 1$ \\
+         }
+    }
+  }
+  \caption{Computing the Walsh spectrum (FWT).}
+  \label{alg:2}
+\end{algorithm}
+\end{center}
+
+
+\section{Cryptographic properties}
+
+This section defines some properties relevant for cryptographic applications and explains how to use the package to compute them. Those properties are resiliency (i.e. balancedness and correlation immunity), nonlinearity and algebraic immunity. For further readings, the reader is refered to \cite{Braeken06}.
+
+\subsection{Resiliency}
+Resiliency combines balancedness and correlation immunity. A Boolean function is said to be correlation immuned of order $t$ if the probability distribution of its output does not change when at most $t$ input bits are fixed. 
+\begin{defn}
+A function $f\in\mathcal{B}_{n}$ is $t$-CI if its output is statistically independent of any subset of at most $t$ input bits.
+\end{defn}
+Correlation immunity (and resiliency) are used to assess the resistance to correlation attacks \cite{Canteaut05}. Note that the statistical measure used to assess independency between input and output bits is (conditional) mutual information. 
+\begin{defn}
+A function $f\in\mathcal{B}_n$ is $t-$resilient if \\
+(a) $f$ is balanced, that is its truth table contains as many zeros as ones, and \\
+(b) $f$ is $t$-CI, i.e. correlation immuned of order $t$.
+\end{defn}
+Thus a function is $t-$resilient if its output stays balanced when at most $t$ input variables are fixed.
+In other words, $f$ is balanced if $f(x_{1},...,x_{n})\oplus x_{1}\oplus...\oplus x_{n}$
+is balanced and $f$ is $t-$resilient if $\forall(i_{1},...,i_{t})\subset\{1,...,n\}$
+the function $f(x_{1},...,x_{n})\oplus x_{i_{1}}\oplus...\oplus x_{i_{t}}$
+is balanced. This means that $\forall m\in\{0,...,t\}$, if $\bar{x}$ has $m$
+variables fixed, the function (thus in $\mathcal{B}_{n-m}$) is balanced.
+If we denote this function $f'\in\mathcal{B}_{n-m}$ we thus have
+$W_{f'}(\bar{0})=0$. The latter being true for all $f'$ (i.e. any function 
+with at most $m$ variables fixed) we have $W_{f}(\bar{x})=0$ for
+all $\bar{x}$ s.t. $w_{H}(\bar{x})\leq t$.
+
+\paragraph*{Implementation.}
+According to the results established above, $f\in \mathcal{B}_n$ is $t-$resilient means that $W_{f}(\bar{x})=0\;\forall\bar{x}\mid w_{H}(\bar{x})\leq t$ and $f$ is $t$-CI if $W_f({\bar{x}}) = 0\;\forall\bar{x}\mid 0 < w_{H}(\bar{x}) \leq t$. 
+The implementation of resiliency is straightforward once a method returning the correlation immunity is available. Correlation immunity is implemented 
+by checking if all $\bar{x}$ having (non-zero) Hamming weight at most $t$ have a zero entry in the Walsh spectrum. Resiliency, correlation immunity and balancedness can be obtained using the methods \Robject{res()}, \Robject{ci()}, \Robject{isBal()}, \Robject{isCi()}, \Robject{isRes()} as follows.
+<<>>=
+if( isBal(f) ) print( tt(f) )
+t <- BooleanFunction('01101001')$res()
+BooleanFunction('01101001')$isRes(t)
+t
+@
+\subsection{Nonlinearity}
+
+The nonlinearity of $f$, denoted $nl(f)$, is defined as 
+the smallest Hamming distance between the function $f$ and its best
+affine approximation.
+\begin{defn}
+For all $f\in\mathcal{B}_{n}$, the nonlinearity of $f$ is \[
+nl(f)=\min_{g\in\mathcal{A}_{n}}d_{H}(f,g)\]
+\end{defn}
+This property has been introduced to assess the resistance of a Boolean
+function to linear attacks (including correlation attacks), i.e. attacks
+where the function $f$ is approximated by a function in $\mathcal{A}_{n}$.
+
+Let $W'_f(\bar{x},b)$ be a similar measure as $W_f(\bar{x})$  for the \emph{affine} function $g_{\bar{x},b}$ with constant term $b$. That is,
+\begin{eqnarray*}
+W'_{f}(\bar{x},b) & = & \sum_{\bar{a}\in\mathbb{F}_{2}^{n}}(-1)^{f(\bar{a})\oplus\bar{a}\bar{x}\oplus b}\\
+ & = & (-1)^{b}\cdot W_{f}(\bar{x}) \\
+ & = & (-1)^{b}(2^{n}-2d_{H}(f,g_{\bar{x}}))
+\end{eqnarray*}
+Hence, \[d_{H}(f,g_{\bar{x},b})=\frac{2^{n}-(-1)^{b}W_{f}(\bar{x})}{2}\]
+
+and the definition of $nl(f)$ can be rewritten as follows.
+
+\begin{eqnarray}
+nl(f) & = & \min_{g_{\bar{x},b}\in\mathcal{A}_{n}}\frac{2^{n}-(-1)^{b}W_{f}(\bar{x})}{2}\nonumber\\
+ & = & \min_{\bar{x}\in\mathbb{F}_{2}^{n}}\frac{2^{n}-\mid W_{f}(\bar{x})\mid}{2}\nonumber\\
+ & = & 2^{n-1}-\frac{1}{2}\max_{\bar{x}\in\mathbb{F}_{2}^{n}}\mid W_{f}(\bar{x})\mid \label{eq:nl}\end{eqnarray}
+
+\paragraph*{Implementation.}
+Equation (\ref{eq:nl}) is used to obtain the nonlinearity. The method \Robject{nl()} can be used as follows.
+<<>>=
+newTruthTable <- c(tt(h),tt(h),tt(h),tt(h))
+f <- BooleanFunction( newTruthTable )
+f
+wh(f)
+nl(f)
+( (2^f$n()) - max(abs(wh(f))) ) / 2
+@
+
+\subsection{Algebraic immunity}
+
+Some authors prefer to call this property annihilator immunity as it does not reflect the resistance to all algebraic attacks, only to the ones based on annihilators. Attacks on the augmented function or cube attacks use different approaches. An annihilator of $f\in\mathcal{B}_n$ is a function $g\in\mathcal{B}_n$ such that $f(\bar{x})\cdot g(\bar{x})=0\;\forall \bar{x}\in\mathbb{F}_2^n$. In order words, a function whose support is disjoint from the support of $f$ so that $f(\bar{x})\cdot g(\bar{x})=0\quad\forall\bar{x}\in\mathbb{F}_{2}^{n}$. Algebraic attacks are mounted in two steps.
+\begin{enumerate}
+\item Find a system of equations $f_i$ (multivariate polynomials over $\mathbb{F}_{2}$)
+linking the secret bits (e.g. key bits) with the public bits (keystream, ciphertext, plaintext, ...). The system looks like 
+\begin{eqnarray*}
+f_1(x_1,...,x_n)  &  =   &  b_1  \\
+                  &\vdots&       \\
+f_N(x_1,...,x_n)  &  =   &  b_N  \\
+\end{eqnarray*}
+where $f_i\in\mathcal{B}_n$, $b_i$ are the public bits and $x_i$ are the secret bits.
+\item Solve in $\mathbb{F}_2$ the system of (usually highly nonlinear) equations in order to recover the secret bits. This step involves lowering the algebraic degree of the system. Several methods can be used to achieve this \cite{Bard07}. 
+\end{enumerate}
+
+Consider the equation $f_1(x_1,\dots ,x_n) = b_1$. If $g_1\in\mathcal{B}_n$ is an annihilator of $f_1$ with low degree (i.e., $deg(g) < deg(f)$), then the equation $f_1(\bar{x})\cdot g_1(\bar{x}) = g_1(\bar{x})\cdot b_1$ is easier to solve as it becomes $g_1(\bar{x})\cdot b_1 = 0$ (with lower degree). 
+
+The authors in \cite{MPC04} discuss several ways to lower the degree of $f_1(\bar{x})=b_1$ using annihilators, that is, (a) finding a nonzero annihilator $g_1$ as above (i.e. with low degree) and (b) finding a nonzero function $g'_1$ such that $f_1(\bar{x})\cdot g'_1(\bar{x}) = h(\bar{x})$ where $h$ is a low degree function. Then they show that case (b) is equivalent to case (a) for the function $1\oplus f(\bar{x})$. That is, multiplying
+the equation $f(\bar{x})\cdot g(\bar{x}) = h(\bar{x})$ by $f$ we have $f(\bar{x})\cdot g(\bar{x})=f(\bar{x})\cdot h(\bar{x})=h(\bar{x})$ as $f^2(\bar{x})=f(\bar{x})$ holds over $\mathbb{F}_{2}$. Thus we have $(1\oplus f(\bar{x}))\cdot h(\bar{x}) = 0$. Consequently, we get the following definition.
+\begin{defn}
+The algebraic immunity $ai(f)$ is the smallest value of $d$ such
+that $f(\bar{x})$ or $1\oplus f(\bar{x})$ has a non-zero annihilator of degree $d$.
+\end{defn}
+
+\paragraph*{Implementation}
+If we consider the annihilators (Boolean functions) as a sum of monomials (of degree at most $\lceil n/2 \rceil$) we see that all those monomials should evaluate to zero for all $\bar{x}\in supp(f)$. Hence, a matrix $M$ is built where lines are labeled $1,x_1,x_2,...$ (i.e. all monomials with degree $\leq \lceil n/2 \rceil$ and columns corresponds to $supp(f)$. The entry $M_{i,j}$ is the value taken by monomial $i$ on input the $j^{th}$ vector of $supp(f)$. For example the monomial $x_1x_3$ evaluates to $1$ on inputs $(1,0,1)$ and $(1,1,1)$, zero elsewhere. A second step consists in using Gauss elimination to yield zero lines, the corresponding label of such a line being the algebraic normal form of an annihilator. If $d$ such lines are found, their labels form a basis of the set of annihilators. The same procedure is applied to $1\oplus f$, that is, considering the complement of $supp(f)$ : $\{ \bar{x}\in\mathbb{F}_2^n \mid f(\bar{x})=0 \}$. 
+<<>>=
+randomAIs <- c()
+for( i in 1:1000 ) {
+    randomTruthTable <- round(runif(2^5, 0,1))
+    randomAIs <- c(randomAIs, ai( BooleanFunction(randomTruthTable) ))
+}
+max(randomAIs)
+min(randomAIs)
+mean(randomAIs)
+sd(randomAIs)
+@
+This code shows how to declare a random Boolean function using \Robject{runif}. The algebraic immunity of 1000 random functions in $\mathcal{B}_5$ is computed and stored in \Robject{randomAIs}. Several statistics are displayed (\Robject{sd} stands for standard deviation).
+
+
+\section{Implementation details}
+
+
+This section explains some features of the $\Robject{BooleanFunction}$ object, in particular generic and inherited methods and some optimizations. 
+
+\subsection{Generic functions} Generic functions are functions that can be applied to different objects (e.g. \Robject{print()}, \Robject{plot()}, ...). Some generic functions are overloaded in order to support instances of \Robject{BooleanFunction}.
+<<>>=
+c( tt(f), f$tt() ) # concatenation
+g <- BooleanFunction( c(tt(f), tt(f)) ) 
+@
+In the above code, \Robject{g} is built by concatenating the truth table of \Robject{f} with itself. Note that \Robject{f\$tt()} calls the same function as \Robject{tt(f)}. This applies to all public methods of \Robject{BooleanFunction}. 
+<<>>=
+g
+print( g )
+print( tt(g) )
+print( tt )
+print( g$tt )
+@
+
+\subsection{Inherited methods}
+\Robject{BooleanFunction} inherits from \Robject{Object} defined in the \Rpackage{R.oo} package. The inherited functions \Robject{equals()} and \Robject{hashCode()} are overriden. 
+<<>>=
+h <- BooleanFunction( tt(f) )
+equals(tt(f), tt(h))
+equals(f, h)
+equals(hashCode(f), hashCode(h))
+@
+In the above code \Robject{hashCode(f)} calls \Robject{Object}'s \Robject{hashCode()} with a string representation of \Robject{f}'s truth table as argument. Hence the functions $f$ and $h$ have the same \Robject{hashCode()} value as they have the same truth table.
+
+\subsection{Optimizations}
+A first optimization consist in the use of C code for computing
+\begin{itemize}
+\item The algebraic normal form. 
+\item The algebraic immunity.
+\item The Walsh spectrum.
+\end{itemize}
+A second feature is that heavy computations are carried once only, the first time they are needed. For this, some results are stored in private fields. Those computations are the ones that involve C code, that is, the three items mentionned above.
+
+\section{Conclusion}
+A free open source package to manipulate Boolean functions is available at R CRAN \url{cran.r-project.org}. The package has been developed to evaluate cryptographic properties of Boolean functions and carry statistical analysis on them. An effort has been made to optimize execution speed rather than memory usage. 
+\clearpage
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{plain}
+\bibliography{boolfun}
+\end{document}
+

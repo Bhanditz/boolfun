@@ -19,8 +19,6 @@ setConstructorS3("BooleanFunction", function(initializer=c(0)) { # default initi
     )
 })
 
-#________________________ O V E R R I D D E N    I N H E R I T E D    M E T H O D S__________________________ 
-
 setMethodS3("print", "BooleanFunction", function(x, ...) {
     x <- paste("Boolean function with", (log(length(x$.TT), base=2)), "variables.")
     NextMethod("print")
@@ -32,14 +30,7 @@ setMethodS3("equals", "BooleanFunction", function(this, obj, ...) {
     identical(this$.TT , obj$.TT )    )
 })
 
-setMethodS3("hashCode", "BooleanFunction", function(this, ...) { # do not use binary rep 
-    string <- ""
-    for( i in 1:16 )
-        string <- paste(string, this$tt()[i], sep="")
-    hashCode(string)
-})
-
-#_______________________________________ R E P R E S E N T A T I O N S _______________________________________
+#___________________ R E P R E S E N T A T I O N S _________________________
 
 setMethodS3("tt", "BooleanFunction", function(this, ...) {
     as.vector(this$.TT)
@@ -57,7 +48,12 @@ setMethodS3("anf", "BooleanFunction", function(this, ...) {
     as.vector(this$.ANF)
 })
 
-#_____________________________________________ P R O P E R T I E S ____________________________________________
+setMethodS3("ANF", "BooleanFunction", function(this, ...) {
+    res <- Polynomial(this$anf())
+    res
+})
+
+#_______________________ P R O P E R T I E S _______________________________
 
 setMethodS3("n", "BooleanFunction", function(this, ...) { 
     log( length(this$tt()), base=2 )
@@ -131,4 +127,10 @@ setMethodS3("isRes", "BooleanFunction", function(this, order, ...) {
     as.logical(res)
 })
 
+setMethodS3("isRes", "BooleanFunction", function(this, order, ...) {
+    res <- FALSE
+    if( this$isBal() ) 
+        res <- this$isCi(order)
+    as.logical(res)
+})
 

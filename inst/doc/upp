@@ -1,0 +1,10 @@
+R CMD Sweave polynomial.Rnw
+#latex polynomial.tex
+#latex polynomial.tex
+#dvipdf polynomial.dvi
+pdflatex polynomial.tex
+pdflatex polynomial.tex
+if [ "$1" == "c" ]; then
+  evince polynomial.pdf 
+fi
+

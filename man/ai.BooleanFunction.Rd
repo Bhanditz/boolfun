@@ -18,7 +18,7 @@
 }
 
 \value{
-  This method returns the smallest degree (integer) of a non-zero annihilator of the function (f) or its complement (1+f).
+  This method returns the smallest degree (integer) of a non-zero annihilator of the function (\eqn{f}{f}) or its complement (\eqn{1+f}{1+f}).
 }
 
 \details{
